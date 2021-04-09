@@ -1,25 +1,21 @@
 package main // import "github.com/boltlessengineer/sedp"
 
 import (
+	webpush "github.com/SherClockHolmes/webpush-go"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path/filepath"
 )
 
-func message(w http.ResponseWriter, req *http.Request) {
-	data := make(map[string]string)
-	data["type"] = "text"
-	json.NewEncoder(w).Encode(data)
-	w.Header().Set("Content-Type", "application/json")
-}
-
-func app(w http.ResponseWriter, req *http.Request) {
+func app(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.Host, r.URL.Path)
 	var localPath string
-	if len(req.URL.Path) <= 1 {
+	if len(r.URL.Path) <= 1 {
 		localPath = "app/index.html"
 	} else {
-		localPath = "app/" + req.URL.Path
+		localPath = "app/" + r.URL.Path
 	}
 	content, err := ioutil.ReadFile(localPath)
 	if err != nil {
@@ -33,9 +29,28 @@ func app(w http.ResponseWriter, req *http.Request) {
 	w.Write(content)
 }
 
+func server(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	log.Println(r.Host, r.URL.Path, params)
+
+	// Decode Subscription
+	s := &webpush.Subscription{}
+	json.Unmarshal([]byte("<YOUR_SUBSCRIPTION>"), s)
+	resp, err := webpush.SendNotification([]byte("Test"), s, &webpush.Options{
+		Subscriber:      "example@example.com",
+		VAPIDPublicKey:  "<YOUR_VAPID_PUBLIC_KEY>",
+		VAPIDPrivateKey: "<YOUR_VAPID_PRIVATE_KEY>",
+		TTL:             30,
+	});
+	if err != nil {
+		log.Println("=========[Error]=========");
+	}
+	defer resp.Body.Close()
+}
+
 func main() {
 	http.HandleFunc("/", app)
-	http.HandleFunc("/message", message)
+	http.HandleFunc("/server", server)
 
 	http.ListenAndServe(":3000", nil)
 }
