@@ -1,0 +1,3 @@
+[submodule "broker/goMQTTServer"]
+	path = broker/goMQTTServer
+	url = https://github.com/underflow101/goMQTTServer
