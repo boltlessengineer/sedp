@@ -6,28 +6,59 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	d "example.com/sedp_server/database"
 	webpush "github.com/SherClockHolmes/webpush-go"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
+
+// message callback handler
+func msgCbHandler(c mqtt.Client, m mqtt.Message) {
+	fmt.Printf("TOPIC : %s\n", m.Topic())
+	fmt.Printf("MSG   : %s\n", m.Payload())
+	fmt.Println("Sending")
+	db, err := d.InitDB("./data.db")
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	defer db.Close()
+
+	var sensorID string
+	var read int
+	_, err = fmt.Sscanf(string(m.Payload()), "ID:%s , READ:%d", &sensorID, &read)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	if read > 10 {
+		pushNoti(db, fmt.Sprintf("Smoke in sensorID : %s", sensorID))
+		fmt.Println("Smoke detected. The message has been sent.")
+	} else {
+		fmt.Println("Everything is ok.")
+	}
+}
 
 func main() {
 	fs := http.FileServer(http.Dir("../client"))
 	http.Handle("/static/", http.StripPrefix("/static", fs))
 	http.HandleFunc("/sub", subHandler)
 
-	go func() {
-		time.Sleep(time.Second * 5)
-		fmt.Println("Sending")
-		db, err := d.InitDB("./data.db")
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-		defer db.Close()
-		pushNoti(db, "hello world!")
-		fmt.Println("Done")
-	}()
+	server := "tcp://localhost:1883"
+	opts := mqtt.NewClientOptions().AddBroker(server).SetClientID("emqx_test_client")
+
+	opts.SetDefaultPublishHandler(msgCbHandler)
+
+	client := mqtt.NewClient(opts)
+
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	}
+
+	// Subscribe to a topic
+	if token := client.Subscribe("testtopic/#", 0, nil); token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	} else {
+		fmt.Printf("Connected to : %s\n", server)
+	}
 
 	if err := http.ListenAndServe(":8000", nil); err != nil {
 		log.Fatalln(err.Error())
