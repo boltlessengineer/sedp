@@ -8,6 +8,7 @@
 ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
 ![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+
 ![Arduino](https://img.shields.io/badge/-Arduino-00979D?style=for-the-badge&logo=Arduino&logoColor=white)
 ![Raspberry Pi](https://img.shields.io/badge/-RaspberryPi-C51A4A?style=for-the-badge&logo=Raspberry-Pi)
 
@@ -28,7 +29,14 @@ SEDP는 오픈소스 담배 연기 감지 시스템입니다.
 
 ## 개발 가이드
 
-[SEDP Wiki](https://github.com/boltlessengineer/bopyung-sedp/wiki)
+1. Install go 1.15 or later.
+2. Install ngrok.
+3. Move to `/broker/goMQTTBroker` folder and run `./main --host localhost -p 1883`
+4. Move to `/server` folder and run `go run ./server.go`
+5. Run `./ngrok http 8000`
+6. Open `<ngrok host url>/static/` to view the frontend.
+
+더 자세한 가이드 : [SEDP Wiki](https://github.com/boltlessengineer/bopyung-sedp/wiki)
 
 ## 문의
 
