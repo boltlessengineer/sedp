@@ -15,7 +15,6 @@ self.addEventListener("push", (event) => {
     );
 });
 
-/*
 const staticAssets = ["./", "./style.css", "./index.js"];
 
 self.addEventListener("install", async (event) => {
@@ -50,10 +49,11 @@ async function newtorkFirst(req) {
         return await cache.match(req);
     }
 }
+/*
 
 self.addEventListener("push", (event) => {
     console.log("Push", event.data.text());
-
+    
     const title = "Hello";
     const options = {
         body: event.data.text(),
