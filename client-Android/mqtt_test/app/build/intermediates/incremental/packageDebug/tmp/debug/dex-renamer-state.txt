@@ -1,0 +1,4 @@
+#Mon Aug 23 09:55:48 KST 2021
+base.0=D\:\\Files\\Codes\\Android\\mqtt_test\\app\\build\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+renamed.0=classes.dex
+path.0=classes.dex
